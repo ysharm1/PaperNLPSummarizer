@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper NLP Summarizer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+        .row { display: flex; gap: 1rem; }
+        .row > * { flex: 1; }
+        button {
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-primary:disabled { background: #475569; cursor: not-allowed; }
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .btn-secondary:hover { background: #475569; }
+        .actions { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
+        .status {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            display: none;
+        }
+        .status.show { display: block; }
+        .status.info { background: #1e3a5f; border: 1px solid #3b82f6; }
+        .status.error { background: #3b1c1c; border: 1px solid #ef4444; color: #fca5a5; }
+        .status.success { background: #1a3a2a; border: 1px solid #22c55e; color: #86efac; }
+
+        /* Results */
+        .results { margin-top: 1.5rem; }
+        .paper-result {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+        .paper-result h3 {
+            font-size: 1rem;
+            color: #60a5fa;
+            margin-bottom: 0.3rem;
+        }
+        .paper-result .paper-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        .section-block {
+            margin-bottom: 1rem;
+        }
+        .section-block h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #22c55e;
+            margin-bottom: 0.5rem;
+        }
+        .section-block ol {
+            padding-left: 1.2rem;
+        }
+        .section-block li {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+        .papers-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .paper-tag {
+            background: #334155;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .paper-tag .remove {
+            cursor: pointer;
+            margin-left: 0.4rem;
+            color: #64748b;
+        }
+        .paper-tag .remove:hover { color: #ef4444; }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #475569;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Paper NLP Summarizer</h1>
+        <p class="subtitle">Extractive summarization of PubMed Central research papers</p>
+
+        <div id="status" class="status"></div>
+
+        <!-- Scrape section -->
+        <div class="card">
+            <h2>1. Add Papers</h2>
+            <label for="pmcid-input">PMC ID (e.g., PMC5934765)</label>
+            <div style="display: flex; gap: 0.8rem;">
+                <input type="text" id="pmcid-input" placeholder="PMC5934765" style="margin-bottom: 0;">
+                <button class="btn-primary" id="scrape-btn" onclick="scrapePaper()">Scrape</button>
+            </div>
+            <div class="papers-list" id="papers-list" style="margin-top: 1rem;"></div>
+        </div>
+
+        <!-- Summarize section -->
+        <div class="card">
+            <h2>2. Summarize</h2>
+            <div class="row">
+                <div>
+                    <label for="aim-select">Aim</label>
+                    <select id="aim-select" onchange="toggleAimOptions()">
+                        <option value="2">Aim 2 — Per-paper summaries</option>
+                        <option value="1">Aim 1 — Cross-paper summary</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="method-select">Algorithm</label>
+                    <select id="method-select">
+                        <option value="textrank">TextRank</option>
+                        <option value="lsa">LSA</option>
+                        <option value="lexrank">LexRank</option>
+                        <option value="luhn">Luhn</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="n-sentences">Sentences</label>
+                    <input type="number" id="n-sentences" value="3" min="1" max="10">
+                </div>
+            </div>
+            <div id="aim1-options" style="display: none;">
+                <label for="section-select">Section to combine</label>
+                <select id="section-select">
+                    <option value="results">Results</option>
+                    <option value="abstract">Abstract</option>
+                    <option value="introduction">Introduction</option>
+                    <option value="discussion">Discussion</option>
+                    <option value="methods">Methods</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button class="btn-primary" id="summarize-btn" onclick="runSummarize()">Run Summary</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        let papers = [];
+
+        // Load existing papers on page load
+        async function loadPapers() {
+            try {
+                const res = await fetch('/api/papers');
+                const data = await res.json();
+                papers = data.map(p => p.pmcid);
+                renderPapers(data);
+            } catch (e) {
+                showStatus('Failed to load papers', 'error');
+            }
+        }
+
+        function renderPapers(data) {
+            const list = document.getElementById('papers-list');
+            if (data.length === 0) {
+                list.innerHTML = '<span style="color: #64748b; font-size: 0.85rem;">No papers scraped yet</span>';
+                return;
+            }
+            list.innerHTML = data.map(p =>
+                `<div class="paper-tag">
+                    ${p.pmcid} (${p.sections.length} sections)
+                    <span class="remove" onclick="removePaper('${p.pmcid}')">&times;</span>
+                </div>`
+            ).join('');
+        }
+
+        function removePaper(pmcid) {
+            papers = papers.filter(p => p !== pmcid);
+            document.getElementById('papers-list').innerHTML = papers.map(p =>
+                `<div class="paper-tag">${p} <span class="remove" onclick="removePaper('${p}')">&times;</span></div>`
+            ).join('');
+        }
+
+        async function scrapePaper() {
+            const input = document.getElementById('pmcid-input');
+            let pmcid = input.value.trim();
+            if (!pmcid) return;
+
+            if (!pmcid.toUpperCase().startsWith('PMC')) pmcid = 'PMC' + pmcid;
+
+            const btn = document.getElementById('scrape-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Scraping...';
+            showStatus(`Scraping ${pmcid}... (this takes a few seconds)`, 'info');
+
+            try {
+                const res = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({pmcid})
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showStatus(`✓ ${data.message} — "${data.title}"`, 'success');
+                    input.value = '';
+                    loadPapers();
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showStatus(`Network error: ${e.message}`, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Scrape';
+        }
+
+        async function runSummarize() {
+            if (papers.length === 0) {
+                showStatus('Add papers first', 'error');
+                return;
+            }
+
+            const aim = parseInt(document.getElementById('aim-select').value);
+            const method = document.getElementById('method-select').value;
+            const n_sentences = parseInt(document.getElementById('n-sentences').value);
+            const section = document.getElementById('section-select').value;
+
+            const btn = document.getElementById('summarize-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Summarizing...';
+            showStatus('Running NLP summarization...', 'info');
+
+            try {
+                const res = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({pmcids: papers, method, n_sentences, aim, section})
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showStatus('', '');
+                    document.getElementById('status').classList.remove('show');
+                    renderResults(data, aim);
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showStatus(`Network error: ${e.message}`, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Run Summary';
+        }
+
+        function renderResults(data, aim) {
+            const container = document.getElementById('results');
+
+            if (aim === 1) {
+                container.innerHTML = `
+                    <div class="paper-result">
+                        <h3>Cross-Paper Summary: ${data.section.toUpperCase()}</h3>
+                        <p class="paper-title">Combined from ${data.papers_used.length} papers: ${data.papers_used.join(', ')}</p>
+                        <div class="section-block">
+                            <ol>${data.summary.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </div>
+                    </div>`;
+            } else {
+                let html = '';
+                for (const [pmcid, info] of Object.entries(data)) {
+                    if (info.error) {
+                        html += `<div class="paper-result"><h3>${pmcid}</h3><p class="paper-title">${info.error}</p></div>`;
+                        continue;
+                    }
+                    let sectionsHtml = '';
+                    for (const [section, sentences] of Object.entries(info.summaries)) {
+                        sectionsHtml += `
+                            <div class="section-block">
+                                <h4>${section}</h4>
+                                <ol>${sentences.map(s => `<li>${s}</li>`).join('')}</ol>
+                            </div>`;
+                    }
+                    html += `
+                        <div class="paper-result">
+                            <h3>${pmcid}</h3>
+                            <p class="paper-title">${info.title}</p>
+                            ${sectionsHtml}
+                        </div>`;
+                }
+                container.innerHTML = html;
+            }
+        }
+
+        function toggleAimOptions() {
+            const aim = document.getElementById('aim-select').value;
+            document.getElementById('aim1-options').style.display = aim === '1' ? 'block' : 'none';
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('status');
+            if (!msg) { el.classList.remove('show'); return; }
+            el.textContent = msg;
+            el.className = `status show ${type}`;
+        }
+
+        // Enter key triggers scrape
+        document.getElementById('pmcid-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') scrapePaper();
+        });
+
+        // Load on start
+        loadPapers();
+    </script>
+</body>
+</html>
