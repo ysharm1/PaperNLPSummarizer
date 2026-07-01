@@ -1,0 +1,24 @@
+{
+  "PMC12053221": {
+    "abstract": [
+      "Oligodendroglia are the responsible cells for myelination in the central nervous system and their involvement in Parkinson’s disease (PD) is poorly understood.",
+      "We performed sn-RNA-seq and image-based spatial transcriptomics of human caudate nucleus and putamen (dorsal striatum) from PD and control brain donors to elucidate the diversity of oligodendroglia and how they are affected by the disease.",
+      "These PD-specific populations are characterized by the overexpression of heat shock proteins, as well as distinct expression signatures related to immune responses, myelination alterations, and disrupted cell signaling pathways."
+    ],
+    "introduction": [
+      "PD is a heterogeneous condition, with mutations in multiple genes presenting with a similar parkinsonian syndrome and a single causative mutation resulting in a range of clinical presentations [ 9 , 36 ].",
+      "While the loss of dopaminergic neurons in the substantia nigra pars compacta (SNpc) and the accumulation of intracellular α-synuclein aggregates in Lewy bodies (LBs) and Lewy neurites (LNs) have long been associated with the development of PD [ 21 , 31 ] , recent studies have demonstrated the involvement of glial cells, in particular oligodendrocytes (OLs), in neurodegenerative disorders such as PD and Alzheimer’s disease (AD) [ 16 , 23 , 29 , 47 , 48 , 52 , 62 , 64 , 85 ].",
+      "Bryois et al. [ 13 ] found a genetic association between PD GWAS variants and OLs, while Wakabayashi et al. [ 79 ] and Arai et al. [ 2 ] observed α-synuclein inclusions in OLs of PD brains."
+    ],
+    "results": [
+      "To characterize and confirm the loss of dopaminergic neuron projections and the presence of LBs/LNs in PD samples, we performed immunohistochemical analysis for tyrosine hydroxylase (TH) and α-synuclein (α-syn) in the contralateral CN and Pu of MADRC control ( N = 10 (α-syn), N = 8 (TH)) and PD ( N = 8 (α-syn and TH)) donors, (Fig.",
+      "In light of the significant changes observed within the mature OLs associated with PD (included in the OPALIN + and SLC5A11 + subclasses), we conducted a GSEA on the most affected subpopulations, employing established databases such as GO, KEGG, and Reactome, to better understand the functional pathways implicated in PD.",
+      "In addition, to further elucidate the relationship between MBP immunoreactivity in the Pu and the relative abundance of OLs subpopulations, we conducted a correlation analysis between MBP immunoreactive signal and the ratios of PDAO-1 and PDAO-2 to MOL-A, reflecting the aforementioned shifts in cell population proportions in PD."
+    ],
+    "discussion": [
+      "Characterizing the diversity of OLs and their precursors, as well as how they are affected in one of the most impacted brain regions in PD (the dorsal striatum), is essential for uncovering the mechanisms underlying oligodendroglia dysfunction and its contribution to neurodegeneration.",
+      "In this work, we have built the largest dataset, to our knowledge, of sn-RNA-seq from CN and Pu samples from PD and control donors, and applied one of the most recent and sensitive spatial transcriptomics approaches to delineate the main transcriptomic changes of oligodendroglia with their neuroanatomical correlation in this neurodegenerative disorder.",
+      "While MOL-B and PDAO-2 showed similarities with previous described populations, they have a distinct transcriptomic profile (Supplementary Table 5): PDAO-2 share similarities with the disease-associated OLs (DAOs) identified in MS by Falcão et al. [ 24 ], including pathways involved in antigen processing and presentation via major histocompatibility complex class I and II (MHC-I and -II), and immune OLs (imOLs) from Jäkel et al. [ 35 ] (related to OPC1 in Falcão et al. [ 24 ]) sharing ARHGAP24 and CTNNA2 among others."
+    ]
+  }
+}
