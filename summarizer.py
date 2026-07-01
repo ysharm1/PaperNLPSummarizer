@@ -16,8 +16,16 @@ RUN:
 python summarizer.py
 """
 
+import os
 import re
 from pathlib import Path
+
+import nltk
+
+# Add local nltk_data if it exists (for Render deployment)
+_nltk_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nltk_data")
+if os.path.exists(_nltk_local):
+    nltk.data.path.insert(0, _nltk_local)
 
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer

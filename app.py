@@ -6,9 +6,16 @@ Run:
 Then open http://localhost:5000 in your browser.
 """
 
+import os
 import json
+import nltk
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
+
+# Ensure NLTK data is available (Render downloads it during build)
+nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
+if os.path.exists(nltk_data_dir):
+    nltk.data.path.insert(0, nltk_data_dir)
 
 from scraper import scrape
 from summarizer import (
